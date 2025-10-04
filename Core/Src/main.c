@@ -23,6 +23,8 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include <stdio.h>
+#include <string.h>
 #include "stm32f1xx_hal.h"  // 包含 HAL 库总头文件，里面会包含大部分外设相关头文件
 #include "stm32f1xx_hal_rcc.h"  // 明确包含 RCC 相关头文件
 #include "stm32f1xx_hal_can.h"  // 明确包含 CAN 相关头文件
@@ -44,7 +46,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+/* USER CODE END PM */
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -55,19 +57,14 @@ uint32_t g_current_period = 2000;   // 当前周期（ms），默认 2000ms
 uint32_t g_motor_actual_angle = 0;  // 电机实际角度（从 CAN 接收）
 
 /* FreeRTOS 信号量句柄（需和 CubeMX 配置一致） */
-osSemaphoreId PeriodSemHandle;
-osSemaphoreId ExtiSemHandle;
-
-/* FreeRTOS 任务句柄 */
-osThreadId MotorCtrlTaskHandle;
-osThreadId UartSendTaskHandle;
+// FreeRTOS handles are defined in freertos.c (CubeMX). Declare them via main.h if needed.
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-void M2006_Send_Pos_Cmd(uint16_t angle, uint8_t id);  // M2006 位置控制指令发送
+void M2006_Send_Pos_Cmd(uint16_t angle, uint16_t id);  // M2006 位置控制指令发送（使用 11-bit 标准 ID，保持 uint16_t）
 void MotorCtrlTask(void const *argument);             // 电机控制任务
 void UartSendTask(void const *argument);              // 串口发送任务
 /* USER CODE END PFP */
@@ -138,43 +135,39 @@ int main(void)
   * @retval None
   */
 void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    Error_Handler();
-  }
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
-    Error_Handler();
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    {
+      Error_Handler();
+    }
   }
-}
 
 /* USER CODE BEGIN 4 */
 // CAN 滤波配置 + M2006 指令发送 + CAN 接收回调
-void M2006_Send_Pos_Cmd(uint16_t angle, uint8_t id)
+void M2006_Send_Pos_Cmd(uint16_t angle, uint16_t id)
 {
     CAN_TxHeaderTypeDef tx_header;
     uint8_t tx_data[8] = {0};
@@ -198,8 +191,8 @@ void M2006_Send_Pos_Cmd(uint16_t angle, uint8_t id)
     tx_data[6] = 0;
     tx_data[7] = 0;
 
-    HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
-    while (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0); // 等待发送完成
+    HAL_CAN_AddTxMessage(&hcan, &tx_header, tx_data, &tx_mailbox);
+    while (HAL_CAN_GetTxMailboxesFreeLevel(&hcan) == 0); // 等待发送完成
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
@@ -207,16 +200,13 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     CAN_RxHeaderTypeDef rx_header;
     uint8_t rx_data[8] = {0};
 
-    if (hcan == &hcan1)
+    /* 直接读取接收 FIFO 的消息（回调传入的是触发中断的 CAN 句柄指针） */
+    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
+    /* 只处理 M2006 反馈（ID=0x201） */
+    if (rx_header.StdId == 0x201)
     {
-        HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rx_header, rx_data);
-        // 只处理 M2006 反馈（ID=0x201）
-        if (rx_header.StdId == 0x201)
-        {
-            // 接收编码值转角度（8192 码=360°）
-            int16_t encode = (rx_data[1] << 8) | rx_data[0];
-            g_motor_actual_angle = encode * 360 / 8192;
-        }
+        int16_t encode = (rx_data[1] << 8) | rx_data[0];
+        g_motor_actual_angle = encode * 360 / 8192;
     }
 }
 
@@ -282,9 +272,9 @@ void UartSendTask(void const *argument)
     for (;;)
     {
         // 格式化电机实际角度（50Hz：20ms 发送一次）
-        sprintf(uart_buf, "Motor Actual Angle: %d°\r\n", g_motor_actual_angle);
-        // 发送数据（阻塞发送，确保数据完整）
-        HAL_UART_Transmit(&husart1, (uint8_t*)uart_buf, strlen(uart_buf), 100);
+  sprintf(uart_buf, "Motor Actual Angle: %lu deg\r\n", (unsigned long)g_motor_actual_angle);
+  // 发送数据（阻塞发送，确保数据完整）
+  HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, (uint16_t)strlen(uart_buf), 100);
         
         osDelay(20); // 20ms → 50Hz 频率
     }

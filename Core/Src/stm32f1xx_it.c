@@ -185,3 +185,94 @@ void SysTick_Handler(void)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+
+/* Provide weak default implementations for IRQ handlers referenced by the
+  startup vector. These are weak so user code can override them; they
+  simply loop if not overridden. */
+void WWDG_IRQHandler(void) __attribute__ ((weak));
+void WWDG_IRQHandler(void) { while (1) {} }
+void PVD_IRQHandler(void) __attribute__ ((weak));
+void PVD_IRQHandler(void) { while (1) {} }
+void TAMPER_IRQHandler(void) __attribute__ ((weak));
+void TAMPER_IRQHandler(void) { while (1) {} }
+void RTC_IRQHandler(void) __attribute__ ((weak));
+void RTC_IRQHandler(void) { while (1) {} }
+void FLASH_IRQHandler(void) __attribute__ ((weak));
+void FLASH_IRQHandler(void) { while (1) {} }
+void RCC_IRQHandler(void) __attribute__ ((weak));
+void RCC_IRQHandler(void) { while (1) {} }
+void EXTI0_IRQHandler(void) __attribute__ ((weak));
+void EXTI0_IRQHandler(void) { while (1) {} }
+void EXTI1_IRQHandler(void) __attribute__ ((weak));
+void EXTI1_IRQHandler(void) { while (1) {} }
+void EXTI2_IRQHandler(void) __attribute__ ((weak));
+void EXTI2_IRQHandler(void) { while (1) {} }
+void EXTI3_IRQHandler(void) __attribute__ ((weak));
+void EXTI3_IRQHandler(void) { while (1) {} }
+void EXTI4_IRQHandler(void) __attribute__ ((weak));
+void EXTI4_IRQHandler(void) { while (1) {} }
+void DMA1_Channel1_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel1_IRQHandler(void) { while (1) {} }
+void DMA1_Channel2_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel2_IRQHandler(void) { while (1) {} }
+void DMA1_Channel3_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel3_IRQHandler(void) { while (1) {} }
+void DMA1_Channel4_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel4_IRQHandler(void) { while (1) {} }
+void DMA1_Channel5_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel5_IRQHandler(void) { while (1) {} }
+void DMA1_Channel6_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel6_IRQHandler(void) { while (1) {} }
+void DMA1_Channel7_IRQHandler(void) __attribute__ ((weak));
+void DMA1_Channel7_IRQHandler(void) { while (1) {} }
+void ADC1_2_IRQHandler(void) __attribute__ ((weak));
+void ADC1_2_IRQHandler(void) { while (1) {} }
+void USB_HP_CAN1_TX_IRQHandler(void) __attribute__ ((weak));
+void USB_HP_CAN1_TX_IRQHandler(void) { while (1) {} }
+void USB_LP_CAN1_RX0_IRQHandler(void) __attribute__ ((weak));
+void USB_LP_CAN1_RX0_IRQHandler(void) { while (1) {} }
+void CAN1_RX1_IRQHandler(void) __attribute__ ((weak));
+void CAN1_RX1_IRQHandler(void) { while (1) {} }
+void CAN1_SCE_IRQHandler(void) __attribute__ ((weak));
+void CAN1_SCE_IRQHandler(void) { while (1) {} }
+void EXTI9_5_IRQHandler(void) __attribute__ ((weak));
+void EXTI9_5_IRQHandler(void) { while (1) {} }
+void TIM1_BRK_IRQHandler(void) __attribute__ ((weak));
+void TIM1_BRK_IRQHandler(void) { while (1) {} }
+void TIM1_UP_IRQHandler(void) __attribute__ ((weak));
+void TIM1_UP_IRQHandler(void) { while (1) {} }
+void TIM1_TRG_COM_IRQHandler(void) __attribute__ ((weak));
+void TIM1_TRG_COM_IRQHandler(void) { while (1) {} }
+void TIM1_CC_IRQHandler(void) __attribute__ ((weak));
+void TIM1_CC_IRQHandler(void) { while (1) {} }
+void TIM2_IRQHandler(void) __attribute__ ((weak));
+void TIM2_IRQHandler(void) { while (1) {} }
+void TIM3_IRQHandler(void) __attribute__ ((weak));
+void TIM3_IRQHandler(void) { while (1) {} }
+void TIM4_IRQHandler(void) __attribute__ ((weak));
+void TIM4_IRQHandler(void) { while (1) {} }
+void I2C1_EV_IRQHandler(void) __attribute__ ((weak));
+void I2C1_EV_IRQHandler(void) { while (1) {} }
+void I2C1_ER_IRQHandler(void) __attribute__ ((weak));
+void I2C1_ER_IRQHandler(void) { while (1) {} }
+void I2C2_EV_IRQHandler(void) __attribute__ ((weak));
+void I2C2_EV_IRQHandler(void) { while (1) {} }
+void I2C2_ER_IRQHandler(void) __attribute__ ((weak));
+void I2C2_ER_IRQHandler(void) { while (1) {} }
+void SPI1_IRQHandler(void) __attribute__ ((weak));
+void SPI1_IRQHandler(void) { while (1) {} }
+void SPI2_IRQHandler(void) __attribute__ ((weak));
+void SPI2_IRQHandler(void) { while (1) {} }
+void USART1_IRQHandler(void) __attribute__ ((weak));
+void USART1_IRQHandler(void) { while (1) {} }
+void USART2_IRQHandler(void) __attribute__ ((weak));
+void USART2_IRQHandler(void) { while (1) {} }
+void USART3_IRQHandler(void) __attribute__ ((weak));
+void USART3_IRQHandler(void) { while (1) {} }
+void EXTI15_10_IRQHandler(void) __attribute__ ((weak));
+void EXTI15_10_IRQHandler(void) { while (1) {} }
+void RTC_Alarm_IRQHandler(void) __attribute__ ((weak));
+void RTC_Alarm_IRQHandler(void) { while (1) {} }
+void USBWakeUp_IRQHandler(void) __attribute__ ((weak));
+void USBWakeUp_IRQHandler(void) { while (1) {} }
+
