@@ -57,6 +57,25 @@
   #endif
 
 #else
-  #error "Compiler not supported!"
+  /* Fallback: if no known compiler macro is defined, assume GCC-compatible assembler.
+     This avoids build failures in environments (like eIDE) that don't set __GNUC__ for
+     the assembler preprocessor. The GCC startup files are safe for GNU toolchain. */
+  #if   (defined (ARM_MATH_CM0))
+    #include "GCC\startup_armv6-m.S"
+  #elif (defined (ARM_MATH_CM0P))
+    #include "GCC\startup_armv6-m.S"
+  #elif (defined (ARM_MATH_CM3))
+    #include "GCC\startup_armv7-m.S"
+  #elif (defined (ARM_MATH_CM4))
+    #include "GCC\startup_armv7-m.S"
+  #elif (defined (ARM_MATH_CM7))
+    #include "GCC\startup_armv7-m.S"
+  #elif (defined (ARM_MATH_ARMV8MBL))
+    #include "GCC\startup_armv6-m.S"
+  #elif (defined (ARM_MATH_ARMV8MML))
+    #include "GCC\startup_armv7-m.S"
+  #else
+    #error "No appropriate startup file found!"
+  #endif
 #endif
 

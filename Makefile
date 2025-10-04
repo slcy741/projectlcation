@@ -115,6 +115,10 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 # AS defines
 AS_DEFS = 
 
+# Ensure assembler preprocessor selects GCC startup files when using GNU toolchain
+# This defines __GNUC__ for the assembler preprocessor so startup_generic.S picks GCC files
+AS_DEFS += -D__GNUC__
+
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
@@ -199,7 +203,11 @@ $(BUILD_DIR):
 # clean up
 #######################################
 clean:
-	-rm -fR $(BUILD_DIR)
+ifeq ($(OS),Windows_NT)
+	-@if exist "$(BUILD_DIR)" rmdir /s /q "$(BUILD_DIR)"
+else
+	-@rm -rf "$(BUILD_DIR)"
+endif
   
 #######################################
 # dependencies
